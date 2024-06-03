@@ -16,6 +16,7 @@ function showWeather(position) {
     fetch(apiUrl)
         .then(response => response.json())
         .then(data => {
+            console.log(data)
             setInterval(() => {
                 document.getElementById("dt").innerText = new Date().toLocaleTimeString();
                 document.getElementById("dmy").innerText = new Date().toLocaleDateString("vi-VN");
@@ -28,6 +29,7 @@ function showWeather(position) {
             document.getElementById("wind-speed").innerText = data.wind.speed + "m/s";
             var iconCode = data.weather[0].icon;
             document.getElementById("weather-icon").src = "https://openweathermap.org/img/wn/" + iconCode + ".png";
+            
 
         })
         .catch(error => console.error("Lỗi khi tìm nạp dữ liệu thời tiết:", error));
