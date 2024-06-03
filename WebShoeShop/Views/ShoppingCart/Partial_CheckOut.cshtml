@@ -66,9 +66,22 @@
             <input type="text" name="Phone" value="@user.Phone" class="form-control" autocomplete="off" />
         </div>
         <div class="form-group">
-            <label>Địa chỉ</label>
-            <input type="text" name="Address" class="form-control" autocomplete="off" />
+            <label for="provinceSelect">Chọn thành phố:</label>
+            <select id="provinceSelect" class="form-control">
+                <option value="">-- Chọn thành phố --</option>
+            </select>
         </div>
+        <div class="form-group">
+            <label for="districtSelect">Quận/Huyện:</label>
+            <select id="districtSelect" class="form-control">
+                <option value="">-- Chọn quận/huyện --</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Địa chỉ cụ thể</label>
+            <input type="text" id="addressDetail" name="AddressDetail" required class="form-control" autocomplete="off" />
+        </div>
+
         <div class="form-group">
             <label>Email</label>
             <input type="text" name="Email" value="@user.Email" class="form-control" autocomplete="off" />
@@ -107,18 +120,72 @@
 }
 
 <script>
-    document.querySelector('select[name="TypeShip"]').addEventListener('change', function() {
+    document.querySelector('select[name="TypeShip"]').addEventListener('change', function () {
         var totalElement = document.getElementById('total');
         var costShipElement = document.getElementById('cost');
-    var tongtien = parseFloat(totalElement.textContent.replace(/\D/g, '')); // Lấy giá trị số từ chuỗi trong <td>
-        var phigiaohang = 70000; 
-    if (this.value === '2') { // Phí giao hàng khi chọn option 2
-        var newTotal = tongtien + phigiaohang;
-        totalElement.textContent = newTotal; // Cập nhật giá trị trong <td>
-        costShipElement.textContent = phigiaohang;
-    } else {
-        totalElement.textContent = tongtien - phigiaohang;// Giữ nguyên giá trị ban đầu
-        costShipElement.textContent = 0;
+        var tongtien = parseFloat(totalElement.textContent.replace(/\D/g, '')); // Lấy giá trị số từ chuỗi trong <td>
+        var phigiaohang = 70000;
+        if (this.value === '2') { // Phí giao hàng khi chọn option 2
+            var newTotal = tongtien + phigiaohang;
+            totalElement.textContent = newTotal; // Cập nhật giá trị trong <td>
+            costShipElement.textContent = phigiaohang;
+        } else {
+            totalElement.textContent = tongtien - phigiaohang;// Giữ nguyên giá trị ban đầu
+            costShipElement.textContent = 0;
+        }
+    });
+    // Function to fetch provinces from API
+    function fetchProvinces() {
+        fetch('https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province', {
+            method: 'GET',
+            headers: {
+                'token': 'f4b8b19d-21a7-11ef-9687-e65979a55bd5',
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                const provinceSelect = document.getElementById('provinceSelect');
+                data.data.forEach(province => {
+                    const option = document.createElement('option');
+                    option.value = province.ProvinceID;
+                    option.text = province.ProvinceName;
+                    provinceSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching provinces:', error));
     }
-});
+
+    // Function to fetch districts based on selected province
+    function fetchDistricts(provinceId) {
+        fetch(`https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=${provinceId}`, {
+            method: 'GET',
+            headers: {
+                'token': 'f4b8b19d-21a7-11ef-9687-e65979a55bd5',
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                const districtSelect = document.getElementById('districtSelect');
+                districtSelect.innerHTML = '<option value="">-- Chọn quận/huyện --</option>';
+                data.data.forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district.DistrictID;
+                    option.text = district.DistrictName;
+                    districtSelect.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error fetching districts:', error));
+    }
+
+    // Event listener for province select change
+    document.getElementById('provinceSelect').addEventListener('change', function () {
+        const selectedProvinceId = this.value;
+        fetchDistricts(selectedProvinceId);
+    });
+
+    // Call fetchProvinces function when the page loads
+    fetchProvinces();
+
 </script>
