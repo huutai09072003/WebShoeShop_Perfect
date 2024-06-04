@@ -193,8 +193,13 @@
     document.querySelector('select[name="TypeShip"]').addEventListener('change', function () {
         var totalElement = document.getElementById('total');
         var costShipElement = document.getElementById('cost');
-        var tongtien = parseFloat(totalElement.textContent.replace(/\D/g, ''));
+        var tongtien = 0; // Đặt lại tổng tiền trước khi tính toán lại
+
         const cityName = document.getElementById('citySelect').selectedOptions[0].textContent;
+        // Tính tổng tiền từ các sản phẩm trong giỏ hàng
+        document.querySelectorAll('.cart-item').forEach(function (item) {
+            tongtien += parseFloat(item.dataset.totalPrice);
+        });
 
         getCoordinates(cityName).then(() => {
             calculateDistance({ lat: originLat, lon: originLon }, { lat: destiLat, lon: destiLon }).then(distance => {
@@ -214,6 +219,7 @@
                 const newTotal = tongtien + phigiaohang;
                 totalElement.textContent = newTotal;
                 costShipElement.textContent = phigiaohang;
+                
             });
         }).catch(error => console.error('Lỗi khi tính phí giao hàng:', error));
     });
