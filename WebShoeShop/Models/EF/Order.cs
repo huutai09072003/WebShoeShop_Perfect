@@ -32,6 +32,7 @@ namespace WebShoeShop.Models.EF
         public string CustomerId { get; set; }
         public int? TypeShip {get; set; }
         public int? Status { get; set; }
+        public int? StatusPayMent { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
     }
 }

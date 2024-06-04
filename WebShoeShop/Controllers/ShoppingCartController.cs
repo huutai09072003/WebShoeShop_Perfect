@@ -195,7 +195,9 @@ namespace WebShoeShop.Controllers
                     order.Phone = req.Phone;
                     order.Address = req.Address;
                     order.Email = req.Email;
-                    order.Status = 1; // Chưa thanh toán
+                    order.Status = 1; // chưa duyệt
+                    order.StatusPayMent = 1; // Chưa thanh toán
+
                     cart.Items.ForEach(x => order.OrderDetails.Add(new OrderDetail
                     {
                         ProductId = x.ProductId,
