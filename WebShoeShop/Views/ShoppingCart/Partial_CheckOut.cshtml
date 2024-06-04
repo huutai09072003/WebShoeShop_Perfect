@@ -201,15 +201,13 @@
                 let phigiaohang = 0;
                 if (distance < 50) {
                     phigiaohang = 30000;
-                }
-                if (distance > 50 || distance < 100) {
+                } else if (distance >= 50 && distance < 100) {
                     phigiaohang = 40000;
-                }
-                if (distance > 100) {
+                } else if (distance >= 100) {
                     phigiaohang = 50000;
                 }
 
-                if (this.value === '2') { // Hỏa tốc
+                if (document.querySelector('select[name="TypeShip"]').value === '2') { // Hỏa tốc
                     phigiaohang += 50000;
                 }
 
