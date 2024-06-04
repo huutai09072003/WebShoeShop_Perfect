@@ -226,7 +226,7 @@
         const ward = document.getElementById('wardSelect').selectedOptions[0].textContent;
         const deaddress = document.getElementById('AddressDetail').value;
 
-        const fullAddress = `${ward}, ${district}, ${city}, ${deaddress}`;
+        const fullAddress = `${deaddress}, ${ward}, ${district}, ${city}`;
         document.getElementById('Address').value = fullAddress;
     }
 
