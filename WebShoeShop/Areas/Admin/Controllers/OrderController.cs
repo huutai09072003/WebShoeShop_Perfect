@@ -69,20 +69,22 @@ namespace WebShoeShop.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public ActionResult UpdateTT(int id, int trangthai)
+        public ActionResult UpdateTT(int id, int trangthai, int thanhtoan)
         {
             var item = db.Orders.Find(id);
             if (item != null)
             {
                 db.Orders.Attach(item);
                 item.Status = trangthai;
+                item.StatusPayMent = thanhtoan;
                 db.Entry(item).Property(x => x.TypePayment).IsModified = true;
                 db.SaveChanges();
                 return Json(new { message = "Success", Success = true });
             }
             return Json(new { message = "Unsuccess", Success = false });
         }
-        
+
+
         public void ThongKe(string fromDate, string toDate)
         {
             var query = from o in db.Orders
