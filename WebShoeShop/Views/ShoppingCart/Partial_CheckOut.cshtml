@@ -70,6 +70,7 @@
             <select id="citySelect" name="City" required class="form-control" onchange="fetchDistricts(); getCoordinates();">
                 <option value="">-- Chọn thành phố --</option>
             </select>
+            <div id="coordinates"></div>
         </div>
         <div class="form-group">
             <label for="districtSelect">Quận/Huyện</label>
@@ -85,15 +86,11 @@
         </div>
         <div class="form-group">
             <label for="city">Địa chỉ cụ thể</label>
-            <input type="text" id="AddressDetail" name="AddressDetail" required class="form-control" autocomplete="off" oninput="generateFullAddress()"/>
+            <input type="text" id="AddressDetail" name="AddressDetail" required class="form-control" autocomplete="off" oninput="generateFullAddress()" />
         </div>
         <div class="form-group">
             <label for="Address">Địa chỉ đầy đủ</label>
             <input type="text" id="Address" name="Address" required class="form-control" autocomplete="off" readonly />
-            <button type="button" class="btn btn-primary" onclick="generateFullAddress()">Tạo Địa Chỉ Đầy Đủ</button>
-        </div>
-        <div class="form-group">
-            <label for="Coordinates" id="Coordinates"></label>
         </div>
 
         <div class="form-group">
@@ -101,13 +98,15 @@
             <input type="text" name="Email" value="@user.Email" class="form-control" autocomplete="off" />
         </div>
     }
-    <div class="form-group">
-        <label>Phương thức vận chuyển</label>
-        <select class="form-control" name="TypeShip">
-            <option value="1" selected>Nhanh (phí giao hàng: miễn phí)</option>
-            <option value="2">Hỏa tốc (phí giao hàng: 70000đ)</option>
-        </select>
-    </div>
+<div class="form-group">
+    <label>Phương thức vận chuyển</label>
+    <select class="form-control" name="TypeShip">
+        <option value="0">--Chọn phương thức thanh toán--</option>
+        <option value="1">Nhanh (phí giao hàng: theo khoảng cách)</option>
+        <option value="2">Hỏa tốc (phí giao hàng: theo khoảng cách + 50000)</option>
+    </select>
+    <div id="distance"></div>
+</div>
     <div class="form-group">
         <label>Hình thức thanh toán</label>
         <select class="form-control" name="TypePayment" id="drTypePayment">
@@ -134,31 +133,12 @@
 }
 
 <script type="text/javascript">
-    document.querySelector('select[name="TypeShip"]').addEventListener('change', function () {
-        var totalElement = document.getElementById('total');
-        var costShipElement = document.getElementById('cost');
-        var tongtien = parseFloat(totalElement.textContent.replace(/\D/g, '')); // Lấy giá trị số từ chuỗi trong <td>
-        var phigiaohang = 70000;
-        if (this.value === '2') { // Phí giao hàng khi chọn option 2
-            var newTotal = tongtien + phigiaohang;
-            totalElement.textContent = newTotal; // Cập nhật giá trị trong <td>
-            costShipElement.textContent = phigiaohang;
-        } else {
-            totalElement.textContent = tongtien - phigiaohang;// Giữ nguyên giá trị ban đầu
-            costShipElement.textContent = 0;
-        }
-    });
-    function generateFullAddress() {
-        const city = document.getElementById('citySelect').selectedOptions[0].textContent;
-        const district = document.getElementById('districtSelect').selectedOptions[0].textContent;
-        const ward = document.getElementById('wardSelect').selectedOptions[0].textContent;
-        const deaddress = document.getElementById('AddressDetail').value;
-
-        const fullAddress = `${ward}, ${district}, ${city}, ${deaddress}`;
-        document.getElementById('Address').value = fullAddress;
-    }
-    // Function to fetch provinces from API
     const apiKey = 'f4b8b19d-21a7-11ef-9687-e65979a55bd5';
+    const originLat = 10.84577744227382;
+    const originLon = 106.79418264976631;
+    var destiLat = 0;
+    var destiLon = 0;
+
 
     // Fetch and populate provinces
     fetch('https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province', {
@@ -179,6 +159,77 @@
             });
         })
         .catch(error => console.error('Error fetching provinces:', error));
+
+
+    function getCoordinates(cityName) {
+        return fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    const { lat, lon } = data[0];
+                    document.getElementById('coordinates').innerText = `Tọa độ: Latitude = ${lat}, Longitude = ${lon}`;
+                    destiLat = lat;
+                    destiLon = lon;
+                } else {
+                    document.getElementById('coordinates').innerText = 'Không tìm thấy kết quả.';
+                    throw new Error('Không tìm thấy kết quả.');
+                }
+            })
+            .catch(error => console.error('Lỗi khi lấy tọa độ:', error));
+    }
+
+    function calculateDistance(origin, destination) {
+        const url = `https://rsapi.goong.io/DistanceMatrix?origins=${origin.lat},${origin.lon}&destinations=${destination.lat},${destination.lon}&vehicle=car&api_key=yr0B0oRR9YfPI7RO8l8QTPmtiJxDlz8EmWXDuIqE`;
+        return fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.rows.length > 0 && data.rows[0].elements.length > 0) {
+                    return data.rows[0].elements[0].distance.value / 1000; // Convert meters to kilometers
+                } else {
+                    throw new Error('No distance data found.');
+                }
+            });
+    }
+    document.querySelector('select[name="TypeShip"]').addEventListener('change', function () {
+        var totalElement = document.getElementById('total');
+        var costShipElement = document.getElementById('cost');
+        var tongtien = parseFloat(totalElement.textContent.replace(/\D/g, ''));
+        const cityName = document.getElementById('citySelect').selectedOptions[0].textContent;
+
+        getCoordinates(cityName).then(() => {
+            calculateDistance({ lat: originLat, lon: originLon }, { lat: destiLat, lon: destiLon }).then(distance => {
+                let phigiaohang = 0;
+                if (distance < 50) {
+                    phigiaohang = 30000;
+                }
+                if (distance > 50 || distance < 100) {
+                    phigiaohang = 40000;
+                }
+                if (distance > 100) {
+                    phigiaohang = 50000;
+                }
+
+                if (this.value === '2') { // Hỏa tốc
+                    phigiaohang += 50000;
+                }
+
+                const newTotal = tongtien + phigiaohang;
+                totalElement.textContent = newTotal;
+                costShipElement.textContent = phigiaohang;
+            });
+        }).catch(error => console.error('Lỗi khi tính phí giao hàng:', error));
+    });
+
+    function generateFullAddress() {
+        const city = document.getElementById('citySelect').selectedOptions[0].textContent;
+        const district = document.getElementById('districtSelect').selectedOptions[0].textContent;
+        const ward = document.getElementById('wardSelect').selectedOptions[0].textContent;
+        const deaddress = document.getElementById('AddressDetail').value;
+
+        const fullAddress = `${ward}, ${district}, ${city}, ${deaddress}`;
+        document.getElementById('Address').value = fullAddress;
+    }
+
 
     // Fetch and populate districts based on selected province
     function fetchDistricts() {
@@ -228,22 +279,6 @@
                 });
             })
             .catch(error => console.error('Error fetching wards:', error));
-    }
-
-
-    function getCoordinates() {
-        const cityName = document.getElementById('citySelect').selectedOptions[0].textContent;
-        fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cityName)}&format=json&limit=1`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.length > 0) {
-                    const { lat, lon } = data[0];
-                    document.getElementById('coordinates').innerText = `Coordinates: Latitude = ${lat}, Longitude = ${lon}`;
-                } else {
-                    document.getElementById('coordinates').innerText = 'No results found.';
-                }
-            })
-            .catch(error => console.error('Error fetching coordinates:', error));
     }
 
 </script>
