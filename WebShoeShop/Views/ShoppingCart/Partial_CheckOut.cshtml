@@ -101,8 +101,9 @@
 <div class="form-group">
     <label>Phương thức vận chuyển</label>
     <select class="form-control" name="TypeShip">
-        <option value="1">Nhanh (phí giao hàng: miễn phí)</option>
-        <option value="2">Hỏa tốc (phí giao hàng: 70000đ)</option>
+        <option value="0">--Chọn phương thức thanh toán--</option>
+        <option value="1">Nhanh (phí giao hàng: theo khoảng cách)</option>
+        <option value="2">Hỏa tốc (phí giao hàng: theo khoảng cách + 50000)</option>
     </select>
     <div id="distance"></div>
 </div>
@@ -166,7 +167,7 @@
             .then(data => {
                 if (data.length > 0) {
                     const { lat, lon } = data[0];
-              
+                    document.getElementById('coordinates').innerText = `Tọa độ: Latitude = ${lat}, Longitude = ${lon}`;
                     destiLat = lat;
                     destiLon = lon;
                 } else {
@@ -189,7 +190,7 @@
                 }
             });
     }
-/*    document.querySelector('select[name="TypeShip"]').addEventListener('change', function () {
+    document.querySelector('select[name="TypeShip"]').addEventListener('change', function () {
         var totalElement = document.getElementById('total');
         var costShipElement = document.getElementById('cost');
         var tongtien = 0; // Đặt lại tổng tiền trước khi tính toán lại
@@ -221,7 +222,7 @@
                 
             });
         }).catch(error => console.error('Lỗi khi tính phí giao hàng:', error));
-    });*/
+    });
 
     function generateFullAddress() {
         const city = document.getElementById('citySelect').selectedOptions[0].textContent;
@@ -287,20 +288,4 @@
             .catch(error => console.error('Error fetching wards:', error));
     }
 
-</script>
-<script>
-    document.querySelector('select[name="TypeShip"]').addEventListener('change', function () {
-        var totalElement = document.getElementById('total');
-        var costShipElement = document.getElementById('cost');
-        var tongtien = parseFloat(totalElement.textContent.replace(/\D/g, '')); // Lấy giá trị số từ chuỗi trong <td>
-        var phigiaohang = 70000;
-        if (this.value === '2') { // Phí giao hàng khi chọn option 2
-            var newTotal = tongtien + phigiaohang;
-            totalElement.textContent = newTotal; // Cập nhật giá trị trong <td>
-            costShipElement.textContent = phigiaohang;
-        } else {
-            totalElement.textContent = tongtien - phigiaohang;// Giữ nguyên giá trị ban đầu
-            costShipElement.textContent = 0;
-        }
-    });
 </script>
