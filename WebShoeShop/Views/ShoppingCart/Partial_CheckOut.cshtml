@@ -70,7 +70,7 @@
             <select id="citySelect" name="City" required class="form-control" onchange="fetchDistricts(); getCoordinates();">
                 <option value="">-- Chọn thành phố --</option>
             </select>
-            <div id="coordinates"></div>
+            @*<div id="coordinates"></div>*@
         </div>
         <div class="form-group">
             <label for="districtSelect">Quận/Huyện</label>
@@ -249,6 +249,8 @@
             .then(data => {
                 const districtSelect = document.getElementById('districtSelect');
                 districtSelect.innerHTML = '<option value="">-- Chọn quận/huyện --</option>'; // Clear previous options
+                const wardSelect = document.getElementById('wardSelect');
+                wardSelect.innerHTML = '<option value="">-- Chọn phường/xã --</option>';
                 data.data.forEach(district => {
                     const option = document.createElement('option');
                     option.value = district.DistrictID;
@@ -257,6 +259,7 @@
                 });
             })
             .catch(error => console.error('Error fetching districts:', error));
+
     }
 
     // Fetch and populate wards based on selected district
@@ -284,20 +287,4 @@
             .catch(error => console.error('Error fetching wards:', error));
     }
 
-</script>
-<script>
-    document.querySelector('select[name="TypeShip"]').addEventListener('change', function () {
-        var totalElement = document.getElementById('total');
-        var costShipElement = document.getElementById('cost');
-        var tongtien = parseFloat(totalElement.textContent.replace(/\D/g, '')); // Lấy giá trị số từ chuỗi trong <td>
-        var phigiaohang = 70000;
-        if (this.value === '2') { // Phí giao hàng khi chọn option 2
-            var newTotal = tongtien + phigiaohang;
-            totalElement.textContent = newTotal; // Cập nhật giá trị trong <td>
-            costShipElement.textContent = phigiaohang;
-        } else {
-            totalElement.textContent = tongtien - phigiaohang;// Giữ nguyên giá trị ban đầu
-            costShipElement.textContent = 0;
-        }
-    });
 </script>
