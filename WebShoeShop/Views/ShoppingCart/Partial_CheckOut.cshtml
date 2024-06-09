@@ -98,15 +98,14 @@
             <input type="text" name="Email" value="@user.Email" class="form-control" autocomplete="off" />
         </div>
     }
-<div class="form-group">
-    <label>Phương thức vận chuyển</label>
-    <select class="form-control" name="TypeShip">
-        <option value="0">--Chọn phương thức thanh toán--</option>
-        <option value="1">Nhanh (phí giao hàng: theo khoảng cách)</option>
-        <option value="2">Hỏa tốc (phí giao hàng: theo khoảng cách + 50000)</option>
-    </select>
-    <div id="distance"></div>
-</div>
+    <div class="form-group">
+        <label>Phương thức vận chuyển</label>
+        <select class="form-control" name="TypeShip">
+            <option value="1">Nhanh (phí giao hàng: miễn phí)</option>
+            <option value="2">Hỏa tốc (phí giao hàng: 70000)</option>
+        </select>
+        <div id="distance"></div>
+    </div>
     <div class="form-group">
         <label>Hình thức thanh toán</label>
         <select class="form-control" name="TypePayment" id="drTypePayment">
@@ -124,7 +123,7 @@
         <label><input type="radio" name="TypePaymentVN" value="2" />ATM - Tài khoản ngân hàng nội địa</label><br />
         <label><input type="radio" name="TypePaymentVN" value="3" />Thanh toán qua thẻ quốc tế</label><br />
     </div>
-
+    <a href="/shoppingcart/PaymentWithPaypal" class="btn btn-danger">paypal</a>
     <div class="form-group" id="load_send"></div>
     <div class="form-group">
         <button type="submit" class="btn btn-block btn-success" id="btnCheckOut">Đặt hàng</button>
@@ -190,7 +189,7 @@
                 }
             });
     }
-    document.querySelector('select[name="TypeShip"]').addEventListener('change', function () {
+/*    document.querySelector('select[name="TypeShip"]').addEventListener('change', function () {
         var totalElement = document.getElementById('total');
         var costShipElement = document.getElementById('cost');
         var tongtien = 0; // Đặt lại tổng tiền trước khi tính toán lại
@@ -219,10 +218,10 @@
                 const newTotal = tongtien + phigiaohang;
                 totalElement.textContent = newTotal;
                 costShipElement.textContent = phigiaohang;
-                
+
             });
         }).catch(error => console.error('Lỗi khi tính phí giao hàng:', error));
-    });
+    });*/
 
     function generateFullAddress() {
         const city = document.getElementById('citySelect').selectedOptions[0].textContent;
@@ -288,4 +287,20 @@
             .catch(error => console.error('Error fetching wards:', error));
     }
 
+</script>
+<script>
+    document.querySelector('select[name="TypeShip"]').addEventListener('change', function () {
+        var totalElement = document.getElementById('total');
+        var costShipElement = document.getElementById('cost');
+        var tongtien = parseFloat(totalElement.textContent.replace(/\D/g, '')); // Lấy giá trị số từ chuỗi trong <td>
+        var phigiaohang = 70000;
+        if (this.value === '2') { // Phí giao hàng khi chọn option 2
+            var newTotal = tongtien + phigiaohang;
+            totalElement.textContent = newTotal; // Cập nhật giá trị trong <td>
+            costShipElement.textContent = phigiaohang;
+        } else {
+            totalElement.textContent = tongtien - phigiaohang;// Giữ nguyên giá trị ban đầu
+            costShipElement.textContent = 0;
+        }
+    });
 </script>

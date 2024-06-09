@@ -55,13 +55,13 @@ namespace WebShoeShop
             //   consumerSecret: "");
 
             app.UseFacebookAuthentication(
-               appId: "318623067865152",
-               appSecret: "8bc49e352067f5454d4a81e4bf0a338f");
+               appId: "1641380196432217",
+               appSecret: "e84f4c25ca67a92b758fcb1c7527b951");
 
             app.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions()
             {
                 ClientId = "1039080094943-esvljha2ilshvplfe9nksr81rcfjg9tm.apps.googleusercontent.com",
-               ClientSecret = "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"
+                ClientSecret = "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",
             });
         }
     }

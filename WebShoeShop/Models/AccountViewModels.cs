@@ -9,6 +9,7 @@ namespace WebShoeShop.Models
         [Required]
         [Display(Name = "Email")]
         public string Email { get; set; }
+        public string Username { get; set; }
     }
 
     public class ExternalLoginListViewModel

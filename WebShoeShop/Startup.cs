@@ -1,5 +1,6 @@
 ﻿using Microsoft.Owin;
 using Owin;
+using System.Web.Services.Description;
 
 [assembly: OwinStartupAttribute(typeof(WebShoeShop.Startup))]
 namespace WebShoeShop
@@ -10,6 +11,7 @@ namespace WebShoeShop
         {
             ConfigureAuth(app);
             app.MapSignalR();
+            
         }
 
     }
